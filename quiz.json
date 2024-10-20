@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farcaster User Info</title>
+    <style>
+        /* استایل‌ها به همان صورت که قبلاً توضیح داده شده بود */
+        /* ... */
+    </style>
+</head>
+<body>
+    <div class="background-shape"></div>
+
+    <!-- فیلد وارد کردن نام کاربری -->
+    <div class="input-field">
+        <input type="text" id="userInput" placeholder="Enter Username or FID">
+        <button onclick="loadUserData()">Load User Data</button>
+    </div>
+
+    <div class="frame">
+        <div class="header">
+            <img src="https://via.placeholder.com/50" alt="User Avatar" id="userAvatar">
+            <div>
+                <div class="user-info" id="userName">@username</div>
+                <div class="user-rank">Rank: <span id="rank">N/A</span> Fid: <span id="fid">N/A</span></div>
+            </div>
+        </div>
+        <div class="stats">
+            <div>Allowance: <span id="allowance">N/A</span></div>
+            <div>Remaining: <span id="remaining">N/A</span></div>
+            <div>Points: <span id="points">N/A</span></div>
+            <div>Tipped: <span id="tipped">N/A</span></div>
+        </div>
+        <div class="footer">Degen Stats by @hephaes</div>
+    </div>
+
+    <script>
+        const apiToken = 'wc_secret_2aaee441599071e4f8c82c1f7e403e678ccd89cb8e2d3f113ba06578_f00ecf8c';  // در صورت نیاز به توکن API، آن را اضافه کنید.
+
+        function loadUserData() {
+            const userInput = document.getElementById("userInput").value;
+
+            // بررسی کنیم که ورودی نام کاربری است یا FID
+            let apiUrl = '';
+            if (isNaN(userInput)) {
+                // اگر ورودی نام کاربری است
+                apiUrl = `https://api.warpcast.com/v2/users/by-username/${userInput}`;
+            } else {
+                // اگر ورودی FID است
+                apiUrl = `https://api.warpcast.com/v2/users/${userInput}`;
+            }
+
+            // ارسال درخواست به API
+            fetch(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${apiToken}`  // در صورت نیاز به توکن احراز هویت
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.result) {
+                    updateFrame(data.result);
+                } else {
+                    alert("User not found!");
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+                alert("There was an error fetching the user data.");
+            });
+        }
+
+        function updateFrame(data) {
+            document.getElementById("userAvatar").src = data.profile.avatarUrl || 'https://via.placeholder.com/50';
+            document.getElementById("userName").textContent = data.profile.username;
+            document.getElementById("rank").textContent = data.stats.rank || 'N/A';
+            document.getElementById("fid").textContent = data.profile.fid || 'N/A';
+            document.getElementById("allowance").textContent = data.stats.allowance || 'N/A';
+            document.getElementById("remaining").textContent = data.stats.remaining || 'N/A';
+            document.getElementById("points").textContent = data.stats.points || 'N/A';
+            document.getElementById("tipped").textContent = data.stats.tipped || 'N/A';
+        }
+    </script>
+</body>
+</html>
